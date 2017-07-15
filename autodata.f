@@ -1,7 +1,7 @@
 \ [ ] sanitize filenames automatically for forth
 \ [x] recognize file extensions
 le:
-import mo/walkdir
+import bu/mo/walkdir
 
 private:
     : replace-char ( source n oldch newch -- )

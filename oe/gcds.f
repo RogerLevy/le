@@ -3,9 +3,9 @@
 \  
 
 role box:
-import mo/cgrid
-import mo/xml
-import mo/stride2d
+import bu/mo/cgrid
+import bu/mo/xml
+import bu/mo/stride2d
 
 : either0  over 0= over 0= or ;
 : /cbox  x 2v@ putCbox  ahb boxGrid addCbox ;

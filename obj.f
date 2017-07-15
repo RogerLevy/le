@@ -12,12 +12,12 @@
 \        rendering routines. You DON'T need this variable all the time.
 
 bu: idiom obj:
-    import mo/portion
-    import mo/cellstack
-    import mo/node
-    import mo/pen
-    import mo/porpoise
-    import mo/draw
+    import bu/mo/portion
+    import bu/mo/cellstack
+    import bu/mo/node
+    import bu/mo/pen
+    import bu/mo/porpoise
+    import bu/mo/draw
 
 : 2@  2v@ ;
 : 2!  2v! ;
@@ -70,7 +70,7 @@ container instance objects
 
 \ Test
 [defined] dev [if]
-    import mo/draw
+    import bu/mo/draw
     private:
     : *thingy  objects one draw> 50 50 red rectf ;
     : world  dblue backdrop objects each> draw ;

@@ -5,7 +5,7 @@
 
 
 obj:
-import mo/draw
+import bu/mo/draw
 var sx var sy var ang var orgx var orgy var flip
 var r var g var b var a
 \ var bmode
@@ -20,8 +20,8 @@ var r var g var b var a
 : /sprite  1 1 sx 2!  1 1 1 1 r 4! ;
 
 [defined] dev [if]
-    import mo/draw
-    import mo/image
+    import bu/mo/draw
+    import bu/mo/image
     image cat.image le/om/macak04.png
     : center  imagedims 0.5 0.5 2* orgx 2! ;
     : *cat  one  /sprite  cat.image center  draw>  cat.image bmp @ sprite  0.01 ang +! ;

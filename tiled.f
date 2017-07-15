@@ -1,6 +1,6 @@
 le: idiom tiled:
-import mo/nodes
-import mo/xml
+import bu/mo/nodes
+import bu/mo/xml
 
 create bgObjTable 1024 cells /allot \ bitmaps
 quality firstgid
