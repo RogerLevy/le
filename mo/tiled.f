@@ -1,15 +1,31 @@
-le: idiom tiled:
-import bu/mo/nodes
-import bu/mo/xml
+\ Basic Tiled support
+\  Doesn't even support tilemaps; just boxes and what I call "free tiles"
+\  "Free" Tiles are used to place non-moving (environment) and moving objects
+\  These free tilesets are based on individual image files.  Not the most efficient, but, it works.
+\  Boxes are used for zones and collision fine-tuning; collision can be automatically generated
+\   for most objects based on image size
+\  Stuff I want:
+\   [ ] Tilemap support
+\   [ ] Paths
+\   [ ] Polygons
+\   [ ] Text?!?!?
 
-create bgObjTable 1024 cells /allot \ bitmaps
+
+
+le: idiom tiled:
+    import bu/mo/nodes
+    import bu/mo/xml
+    import bu/mo/cellstack
+
 quality firstgid
+quality 'onMapLoad  ( O=node -- )
+
+private: 5000 cellstack bmps \ bitmaps
+public:
 
 defer onLoadBox  ( pen=xy -- )
 :noname [ is onLoadBox ] cr ." WARNING: onLoadBox is not defined!" ;
 
-
-quality 'onMapLoad  ( O=node -- )
 : onMapLoad:  ( class -- <code;> )  :noname swap 'onMapLoad ! ;
 : onMapLoad  ( O=node -- )  me class @ 'onMapLoad @ execute ;
 
@@ -21,7 +37,7 @@ quality 'onMapLoad  ( O=node -- )
   repeat  ;
 
 : clearbgimages
-    bgObjTable 1024 0 do @+ ?dup if al_destroy_bitmap then loop  drop
+    bgObjTable 1024 0 do  @+ ?dup if  al_destroy_bitmap  then  loop  drop
     bgObjTable 1024 ierase ;
 
 : addBGImage  ( dest path c -- dest+cell )
@@ -33,7 +49,7 @@ quality 'onMapLoad  ( O=node -- )
 
 : readTileset  ( node -- )
   &o for>
-  " firstgid" attr   " name" attr$ script  firstgid !
+  " firstgid" attr   " name" attr$ evaluate one  firstgid !
   bgobj? -exit  clearbgimages  bgobjtable  o " tile" ['] bgobjtile eachel  drop ;
 
 \ utility word ?PROP: read custom object property
@@ -41,10 +57,10 @@ quality 'onMapLoad  ( O=node -- )
 
 \ children only consists of elements called "property" so no need to check the names of the elements
 : (prop)  ( addr c node -- addr c  continue | node stop )
-  &o for>  o element? -exit  2dup " name" attr$ compare 0= if O true else 0 then ;
+  &o for>  o element? -exit  2dup  " name" attr$  compare 0= if  O true  else  0  then ;
 
 : ?prop$  ( addr c -- false | adr c )
-  o " properties" 0 ?el 0= if 2drop false exit then
+  o " properties" 0 ?el 0= if  2drop  false exit then
   ['] (prop) scan   nip nip  dup -exit  &o for>  " value" attr$ ;
 
 : ?prop  ( adr c -- false | val true )  ?prop$ dup -exit  evaluate true ;
@@ -52,12 +68,12 @@ quality 'onMapLoad  ( O=node -- )
 : instance  ( class -- )  one  onMapLoad ;
 : *instance  ( gid -- )  gid>class instance ;
 
-: fixY  " height" attr negate peny +! ;
+: yfix  " height" attr negate peny +! ;
 
 : readObject  ( node -- )
   &o for>
   " x" attr " y" attr  at
-  " gid" ?attr if  drop fixY  then
+  " gid" ?attr if  drop  yfix  then
   cr o .element 
   " name" ?attr$ if  evaluate
   else
@@ -81,7 +97,7 @@ quality 'onMapLoad  ( O=node -- )
   file@  2dup xml  to tmx
     drop free throw
   fixed
-  tmx " map" 0 ?el not abort" File is not TMX format!"
+  tmx  " map"  0  ?el not abort" File is not TMX format!"
     dup (tilesets) (objgroups)
   r> as ;
 
