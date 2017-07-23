@@ -13,6 +13,8 @@ import bu/mo/rsort
 import bu/mo/rect
 import bu/mo/porpoise
 import bu/mo/node
+import bu/mo/cellstack
+import bu/mo/pen
 
 \ support code
 include le/audio

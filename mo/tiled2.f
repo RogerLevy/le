@@ -49,12 +49,12 @@ defer onLoadBox  ( pen=xy -- )
 : addBGImage  ( dest path c -- dest+cell )
     " data/maps/" s[ +s ]s zstring al_load_bitmap !+ ;
 
-: bgobjtile ( dest node -- dest )  " image" 0 el  &o for>  " source" attr$ addBGImage ;
+: bgobjtile ( dest node -- dest )  " image" 0 el  &o with>  " source" attr$ addBGImage ;
 
 : bgobj?   " name" attr$ " bgobj" compare 0= ;
 
 : readTileset  ( node -- )
-  &o for>
+  &o with>
   " firstgid" attr   " name" attr$ evaluate one  firstgid !
   bgobj? -exit  clearbgimages  bgobjtable  o " tile" ['] bgobjtile eachel  drop ;
 
@@ -63,11 +63,11 @@ defer onLoadBox  ( pen=xy -- )
 
 \ children only consists of elements called "property" so no need to check the names of the elements
 : (prop)  ( addr c node -- addr c  continue | node stop )
-  &o for>  o element? -exit  2dup  " name" attr$  compare 0= if  O true  else  0  then ;
+  &o with>  o element? -exit  2dup  " name" attr$  compare 0= if  O true  else  0  then ;
 
 : ?prop$  ( addr c -- false | adr c )
   o " properties" 0 ?el 0= if  2drop  false exit then
-  ['] (prop) scan   nip nip  dup -exit  &o for>  " value" attr$ ;
+  ['] (prop) scan   nip nip  dup -exit  &o with>  " value" attr$ ;
 
 : ?prop  ( adr c -- false | val true )  ?prop$ dup -exit  evaluate true ;
 
@@ -77,7 +77,7 @@ defer onLoadBox  ( pen=xy -- )
 : yfix  " height" attr negate peny +! ;
 
 : readObject  ( node -- )
-  &o for>
+  &o with>
   " x" attr " y" attr  at
   " gid" ?attr if  drop  yfix  then
   cr o .element

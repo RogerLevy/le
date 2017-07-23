@@ -1,103 +1,101 @@
 \ Basic Tiled support
-\  Doesn't even support tilemaps; just boxes and what I call "free tiles"
-\  "Free" Tiles are used to place non-moving (environment) and moving objects
-\  These free tilesets are based on individual image files.  Not the most efficient, but, it works.
-\  Boxes are used for zones and collision fine-tuning; collision can be automatically generated
-\   for most objects based on image size
-\  Stuff I want:
-\   [ ] Tilemap support
-\   [ ] Paths
-\   [ ] Polygons
-\   [ ] Text?!?!?
+\  Supports just objects and rectangles
+\  Usage:
+\   Make sure your layers' draw orders are set appropriately.
+\   All layers are processed from bottom to top.  Layers are used just
+\   for convenience in the editor / any grouping of objects is done code-side.
 
+\   Rectangles require nothing special in the editor.  On the program side you need to assign LOADBOX.
+
+\   External tilesets are supported.
+
+\   Tileset information used:
+\    type: will be interpreted as forth code
+\    visible: can be used to hide things when disabled
+\    width/height: not used yet
+\    rotation: not used yet
+\    flipping: not used yet
+\    custom parameters: not used (for now.  stuff like tint will be added...)
+
+\   When creating objects, if you give them a name, the string will be executed
+\    instead of the type.
+\   The type parameter of individual objects is ignored.
+
+\   Text nodes are ignored, and can be used for comments
+
+\   If you put a comment in an object's name, it effectively comments out the object and it won't
+\   appear in the game.
 
 
 le: idiom tiled:
-    import bu/mo/nodes
     import bu/mo/xml
     import bu/mo/cellstack
 
-quality firstgid
-quality 'onMapLoad  ( O=node -- )
+defer loadbox  ( pen=xy w h container -- )  ' 3drop is loadbox
+var onmapload  ( xn=xmlnode me=gameobject pen=xy -- )  \ call-address
+var gid
+ext
+0 value tmx  \ just for debugging purposes.  root node of the map file's DOM.
 
-private: 5000 cellstack bmps \ bitmaps
+private:
+    0 value layer
+    numattr width       width
+    numattr height      height
+    numattr firstgid    firstgid
+    attrchecker source? source
+    strattr source      source
+    strattr name        name
+    attrchecker name?   name
+    numattr id          id
+    strattr xntype      type
+    numattr x           x
+    numattr y           y
+    numattr xngid       gid
+    attrchecker xngid?  gid
+    numattr visible     visible
+    childnode image[]   image
+    numattr tilecount   tilecount
+    10000 cellstack bmps
+    10000 cellstack spawners
 public:
 
-defer onLoadBox  ( pen=xy -- )
-:noname [ is onLoadBox ] cr ." WARNING: onLoadBox is not defined!" ;
+: onmapload>  r> swap onmapload ! ;
+: /mapload  ( xn=xmlnode me=gameobject pen=xy -- )  onmapload @ call ;
+: gid>spawner  ( n -- value )  spawners swap 1 - [] @ ;
 
-: onMapLoad:  ( class -- <code;> )  :noname swap 'onMapLoad ! ;
-: onMapLoad  ( O=node -- )  me class @ 'onMapLoad @ execute ;
+private:
+    : loadxml   file@  2dup xml  >r  drop free throw  r> ;
+    : clearly   bmps scount cells bounds ?do  i @  i off  al_destroy_bitmap  cell +loop ;
+    : addbmp  ( path c gid -- ) >r  s" data/maps/" 2swap strjoin loadbmp  r> bmps [] ! ;
+    : /visible  visible 0= hide ! ;
+    : instance  ( xn=xmlnode objlist gid -- )  dup  gid>spawner execute  gid !  /visible  /mapload ;
+    : yfix  height negate peny +! ;
+    : >map   " map" 0 ?el[] not abort" File is not a recognized TMX file!" ;
+    : ?layer   name uncount find if  execute  else  drop objects  then  to layer ;
+public:
 
-: gid>class  ( n -- class )
-  locals| n |
-  lastClass @
-  begin  dup firstgid @ 1 - n u<  over prevClass @ 0 =  or  not while
-    prevClass @
-  repeat  ;
-
-: clearbgimages
-    bgObjTable 1024 0 do  @+ ?dup if  al_destroy_bitmap  then  loop  drop
-    bgObjTable 1024 ierase ;
-
-: addBGImage  ( dest path c -- dest+cell )
-    " data/maps/" s[ +s ]s zstring al_load_bitmap !+ ;
-
-: bgobjtile ( dest node -- dest )  " image" 0 el  &o for>  " source" attr$ addBGImage ;
-
-: bgobj?   " name" attr$ " bgobj" compare 0= ;
-
-: readTileset  ( node -- )
-  &o for>
-  " firstgid" attr   " name" attr$ evaluate one  firstgid !
-  bgobj? -exit  clearbgimages  bgobjtable  o " tile" ['] bgobjtile eachel  drop ;
-
-\ utility word ?PROP: read custom object property
-\ use the O register
-
-\ children only consists of elements called "property" so no need to check the names of the elements
-: (prop)  ( addr c node -- addr c  continue | node stop )
-  &o for>  o element? -exit  2dup  " name" attr$  compare 0= if  O true  else  0  then ;
-
-: ?prop$  ( addr c -- false | adr c )
-  o " properties" 0 ?el 0= if  2drop  false exit then
-  ['] (prop) scan   nip nip  dup -exit  &o for>  " value" attr$ ;
-
-: ?prop  ( adr c -- false | val true )  ?prop$ dup -exit  evaluate true ;
-
-: instance  ( class -- )  one  onMapLoad ;
-: *instance  ( gid -- )  gid>class instance ;
-
-: yfix  " height" attr negate peny +! ;
-
-: readObject  ( node -- )
-  &o for>
-  " x" attr " y" attr  at
-  " gid" ?attr if  drop  yfix  then
-  cr o .element 
-  " name" ?attr$ if  evaluate
-  else
-    " gid" ?attr if  *instance
-                 else  onLoadBox  then
-  then
+: read-tiles  " tile" eachel>  id  0 image[] open>  source  addbmp ;
+: read-tileset  ( node -- )
+    open>
+        name uncount find not if  drop  ['] one  then  ( xt )
+        tilecount 0 do  dup spawners push  loop  drop
+        source? if  source loadxml read-tiles  done  exit then
+        xn read-tiles ;
+: read-object  ( node -- )
+    open>
+        x y at
+        xngid? if  yfix  then
+        .xn
+        name? if
+            name evaluate  ( xn=xmlnode pen=xy )
+        else
+            xngid? if  layer xngid instance  else  width height layer loadbox  then
+        then
 ;
+: read-tilesets  " tileset" eachel>  read-tileset ;
+: read-objectgroups  " objectgroup" eachel>  ?layer  " object" eachel>  read-object ;
 
-: readObjectGroup  " object" ['] readObject eachel ;
-: (tilesets)  " tileset" ['] readTileset eachel ;
-: (objgroups)  " objectgroup" ['] readObjectgroup eachel ;
-
-: clearGIDs  ( -- )
-  firstClass @  begin  ?dup while  #-1 over firstGID !  nextClass @  repeat ;
-
-0 value tmx
-
-: loadTMX  ( path count -- )
-  me >r
-  clearGIDs
-  file@  2dup xml  to tmx
-    drop free throw
-  fixed
-  tmx  " map"  0  ?el not abort" File is not TMX format!"
-    dup (tilesets) (objgroups)
-  r> as ;
-
+: loadtmx  ( path count -- )
+    {  clearly  loadxml  dup to tmx  fixed
+        >map  dup  read-tilesets  read-objectgroups
+        done  } ;
