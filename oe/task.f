@@ -8,8 +8,9 @@
 \  - EXIT or ; from the "root" of a task (the definition containing PERFORM> )
 
 obj:
-var sp  var rp  8 cells field ds  16 cells field rs  used @ to parms
-used @ to parms
+    var sp  var rp  8 cells field ds  16 cells field rs
+    ext
+    
 objects one named main  \ proxy for the Forth data and return stacks
 
 : perform> ( n -- <code> )
