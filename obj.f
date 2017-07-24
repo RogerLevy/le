@@ -37,7 +37,7 @@ used @ value parms
 
 : draw  en @ hide @ 0 = and if  x 2@ at  white  disp @ ?call  then ;
 : step  beha @ ?call ;
-: adv  en @ if  step  vx 2@ x 2+! then ;
+: adv   vx 2@ x 2+! ;
 : each>  ( objlist -- <code> )  r> swap first @ begin  dup while  dup next @ >r  me!  dup >r  call  r>  r> repeat  2drop ;
 : /obj  heap dims drop ;
 : init  me /obj erase  en on  hide on  at@ x 2! ;
@@ -60,7 +60,7 @@ used @ value parms
 
 
 \ Removal
-: sweep  ( collection -- ) each>  marked @ -exit  me remove  nam @ not if  me heap recycle  then ;
+: sweep  ( objlist -- ) each>  marked @ -exit  me remove  nam @ not if  me heap recycle  then ;
 : delete-all  each> me delete ;
 
 : gas  ( objlist -- ) dup delete-all sweep ;  \ this word is kind of meant to be redefined (?)
@@ -76,9 +76,12 @@ defer prerender  :noname  blue backdrop ;  is prerender
 defer postrender  :noname  ;  is postrender
 : draw-objects  eachlist>  each>  draw ;
 \ : draw-info     info @ -exit  eachlist>  each>
-: render-world  render>  prerender  draw-objects  ( draw-info )  postrender ;
-: step-world    step>  eachlist>  each>  adv ;
-: le-go  go>  render-world  step-world ;  le-go
+: le-render  render>  prerender  draw-objects  ( draw-info )  postrender ;
+: step-world    eachlist>  each>  step ;
+: adv-world     eachlist>  each>  adv ;
+: sweep-world   eachlist>  sweep ;
+: le-step  step>  step-world sweep-world adv-world ;
+: le-go  le-render  le-step ;  le-go
 
 \ Test
 [defined] dev [if]
@@ -86,5 +89,3 @@ defer postrender  :noname  ;  is postrender
     : *thingy  objects one draw> 50 50 red 50 circlef ;
     scene  objects gas  displaywh 2 2 2/ at  *thingy  me value thingy
 [then]
-
-

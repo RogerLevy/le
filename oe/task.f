@@ -47,7 +47,7 @@ objects one named main  \ proxy for the Forth data and return stacks
 : yields  0 do yield loop ;
 : secs  fps * yields ;  \ not meant for precision timing
 
-: multi  ( container -- )
+: multi  ( objlist -- )
     me >r
     first @ main next !
     dup
@@ -66,3 +66,4 @@ objects one named main  \ proxy for the Forth data and return stacks
     r> me!
 ;
 
+: multi-world  eachlist> multi ;
