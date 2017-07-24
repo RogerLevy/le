@@ -11,7 +11,13 @@
 \      But it's still better than an across-the-board variable because that complicates writing
 \        rendering routines. You DON'T need this variable all the time.
 
-le: idiom obj:
+bu: idiom obj:
+    import bu/mo/porpoise
+    import bu/mo/node
+    import bu/mo/cellstack
+    import bu/mo/pen
+    import bu/mo/portion
+    import bu/mo/draw
 
 : 2@  2v@ ;
 : 2!  2v! ;
@@ -92,13 +98,14 @@ defer poststep   ' noop  is poststep
 : scene  ( -- )
     world vacate  objects world push  objects gas
     ['] noop  dup is prestep  dup is poststep  is postrender
-    ['] blue-screen is prerender ;
-scene
+    ['] blue-screen is prerender  ;
+\ scene
 
+\\
 \ Test
 [defined] dev [if]
     private:
     : *thingy  objects one draw> 50 50 red 50 circlef ;
-    scene  objects gas  displaywh 2 2 2/ at  *thingy  me value thingy
+    scene  displaywh 2 2 2/ at  *thingy  me value thingy
 [then]
 

@@ -27,14 +27,17 @@
 \   appear in the game.
 
 
-le: idiom tiled:
+bu: idiom tiled:
     import bu/mo/xml
+    import le/obj
     import bu/mo/cellstack
+    import bu/mo/draw
 
 defer loadbox  ( pen=xy w h container -- )  ' 3drop is loadbox
 var onmapload  ( xn=xmlnode me=gameobject pen=xy -- )  \ call-address
 var gid
 ext
+
 0 value tmx  \ just for debugging purposes.  root node of the map file's DOM.
 
 private:
