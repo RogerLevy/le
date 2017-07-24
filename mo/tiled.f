@@ -56,6 +56,7 @@ private:
     numattr xngid       gid
     attrchecker xngid?  gid
     numattr visible     visible
+    attrchecker visible?  visible
     childnode image[]   image
     numattr tilecount   tilecount
     10000 cellstack bmps
@@ -63,40 +64,49 @@ private:
 public:
 
 : onmapload>  r> swap onmapload ! ;
-: /mapload  ( xn=xmlnode me=gameobject pen=xy -- )  onmapload @ call ;
-: gid>spawner  ( n -- value )  spawners swap 1 - [] @ ;
+: /mapload  ( xn=xmlnode me=gameobject pen=xy -- )  onmapload @ ?dup -exit call ;
+: gid>spawner  ( n -- value )  1 - spawners [] @ ;
 
 private:
+    : eval  ['] evaluate catch ?dup if cr bright ." TMX script error:" space  .catch normal  2drop then ;
     : loadxml   file@  2dup xml  >r  drop free throw  r> ;
     : clearly   bmps scount cells bounds ?do  i @  i off  al_destroy_bitmap  cell +loop ;
     : addbmp  ( path c gid -- ) >r  s" data/maps/" 2swap strjoin loadbmp  r> bmps [] ! ;
-    : /visible  visible 0= hide ! ;
-    : instance  ( xn=xmlnode objlist gid -- )  dup  gid>spawner execute  gid !  /visible  /mapload ;
+    : /visible  visible? -exit  visible 0= hide ! ;
+    : instance  ( xn=xmlnode objlist gid -- )  dup  >r  gid>spawner execute  r>  gid !  /visible  /mapload ;
     : yfix  height negate peny +! ;
     : >map   " map" 0 ?el[] not abort" File is not a recognized TMX file!" ;
-    : ?layer   name uncount find if  execute  else  drop objects  then  to layer ;
+    : ?layer   dup open>  name uncount find if  execute  else  drop  objects  then  to layer  ;
+    : addpath  " data/maps/" 2swap strjoin ;
+    : >tileset  " tileset" 0 el[] ;
 public:
 
-: read-tiles  " tile" eachel>  id  0 image[] open>  source  addbmp ;
-: read-tileset  ( node -- )
+variable gidbase
+: read-tiles  ( xmlnode -- )
     open>
         name uncount find not if  drop  ['] one  then  ( xt )
         tilecount 0 do  dup spawners push  loop  drop
-        source? if  source loadxml read-tiles  done  exit then
+        xn " tile" 0 el[]? if  xn " tile" eachel>  open>  id
+        else  0  then  gidbase @ +
+        0 image[] open>  source  rot addbmp ;
+: read-tileset  ( xmlnode -- )
+    open> 
+        firstgid gidbase !
+        source? if  source addpath loadxml >tileset read-tiles  done  exit then
         xn read-tiles ;
-: read-object  ( node -- )
+: read-object  ( xmlnode -- )
     open>
         x y at
         xngid? if  yfix  then
-        .xn
         name? if
-            name evaluate  ( xn=xmlnode pen=xy )
+            name eval  ( xn=xmlnode pen=xy )
         else
             xngid? if  layer xngid instance  else  width height layer loadbox  then
         then
 ;
-: read-tilesets  " tileset" eachel>  read-tileset ;
-: read-objectgroups  " objectgroup" eachel>  ?layer  " object" eachel>  read-object ;
+: read-tilesets  ( xmlnode -- ) " tileset" eachel>  read-tileset ;
+: read-objectgroups  ( xmlnode -- ) " objectgroup" eachel>  ?layer
+    " object" eachel>  read-object ;
 
 : loadtmx  ( path count -- )
     {  clearly  loadxml  dup to tmx  fixed
