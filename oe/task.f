@@ -66,4 +66,4 @@ objects one named main  \ proxy for the Forth data and return stacks
     r> me!
 ;
 
-: multi-world  eachlist> multi ;
+:noname  eachlist> multi ;  is multi-world

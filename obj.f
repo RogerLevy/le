@@ -23,6 +23,8 @@ private:
     : ?call  ?dup -exit call ;
 public:
 
+defer multi-world  ' noop is multi-world  ( -- )  \ for multitasking extension
+
 0 value me
 : me!  to me ;
 : {    " me >r" evaluate ; immediate     \ me stack push ;
@@ -68,20 +70,30 @@ used @ value parms
 256 cellstack world
 : objlist  ( -- <name> )  create  here  container instance,  world push ;
 objlist objects  \ default object list.  if you don't put do anything to WORLD it's the only list processed.
-: scene  ( -- )  world vacate  objects world push ;
 : eachlist>  ( -- <code> )  ( ... objlist -- ... )
     r>  world scount cells bounds do  i @  swap  >r  r@ call  r>  cell +loop  drop ;
 
-defer prerender  :noname  blue backdrop ;  is prerender
-defer postrender  :noname  ;  is postrender
+\ things get a bit crazy here ... the price of modularity?
+defer prerender  : blue-screen blue backdrop ;  ' blue-screen  is prerender
+defer postrender :noname  ;  is postrender
+defer prestep    ' noop  is prestep
+defer poststep   ' noop  is poststep
 : draw-objects  eachlist>  each>  draw ;
 \ : draw-info     info @ -exit  eachlist>  each>
 : le-render  render>  prerender  draw-objects  ( draw-info )  postrender ;
 : step-world    eachlist>  each>  step ;
 : adv-world     eachlist>  each>  adv ;
 : sweep-world   eachlist>  sweep ;
-: le-step  step>  step-world sweep-world adv-world ;
+: le-step  step>  prestep  multi-world  step-world  sweep-world  poststep  sweep-world  adv-world ;
 : le-go  le-render  le-step ;  le-go
+
+: pre>  r> code> is prestep ;
+: post>  r> code> is poststep ;
+: scene  ( -- )
+    world vacate  objects world push  objects gas
+    ['] noop  dup is prestep  dup is poststep  is postrender
+    ['] blue-screen is prerender ;
+scene
 
 \ Test
 [defined] dev [if]
@@ -89,3 +101,4 @@ defer postrender  :noname  ;  is postrender
     : *thingy  objects one draw> 50 50 red 50 circlef ;
     scene  objects gas  displaywh 2 2 2/ at  *thingy  me value thingy
 [then]
+
