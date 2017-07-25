@@ -16,7 +16,7 @@ import bu/mo/node
 import bu/mo/cellstack
 
 \ support code
-include le/audio
+[defined] allegro-audio [if] include le/audio-allegro [else] include le/audio-fmod [then]
 include le/autodata
 include le/kb
 include le/joy
