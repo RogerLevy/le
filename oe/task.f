@@ -1,7 +1,7 @@
 \ Multitasking for game objects
 
 \ The following words should only be used within a task:
-\  YIELD END FRAMES SECS
+\  pause END FRAMES SECS
 \ The following words should never be used within a task:
 \  - External calls
 \  - Console output (when the Bubble IDE is not loaded)
@@ -30,7 +30,7 @@ objects one named main  \ proxy for the Forth data and return stacks
 ;
 
 \ important: this word must not CALL anything or use the return stack until the bottom part.
-: yield
+: pause
     \ save state
     dup \ ensure TOS is on stack
     sp@ sp !
@@ -43,18 +43,31 @@ objects one named main  \ proxy for the Forth data and return stacks
     drop \ ensure TOS is in TOS register
 ;
 
-: end  0 rp! yield ;
-: yields  0 do yield loop ;
-: secs  fps * yields ;  \ not meant for precision timing
+: end  begin pause again ;
+: pauses  0 do pause loop ;
+: secs  fps * pauses ;  \ not meant for precision timing
 
+
+
+\ external-calls facility - say "['] word later" to schedule a word that calls an external library.
+\ you can pass a single parameter to each call, such as an object or an asset.
+20000 cellstack queue
+: later  ( n xt -- )  swap queue push queue push ;
+: arbitrate  objects one 0 act>
+    queue scount cells bounds do  i @ i cell+ @ execute 2 cells +loop
+    queue vacate ;
+
+
+\ execute the multitasker.
 : multi  ( objlist -- )
+    main remove  \ shouldn't be in an objlist
     me >r
     first @ main next !
     dup
     sp@ main 's sp !
     rp@ main 's rp !
     main me!
-    ['] yield catch
+    ['] pause catch
     ?dup if
         main me!
         rp @ rp!
@@ -64,6 +77,7 @@ objects one named main  \ proxy for the Forth data and return stacks
     then
     drop
     r> me!
+    { arbitrate }
 ;
 
 :noname  eachlist> multi ;  is multi-world

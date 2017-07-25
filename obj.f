@@ -66,7 +66,6 @@ used @ value parms
 \ Private idioms for game objects; currently no actual connection to the objects themselves...
 : role  parms used !  idiom  private: ;
 
-
 \ Removal
 : sweep  ( objlist -- ) each>  marked @ -exit  me remove  nam @ not if  me heap recycle  then ;
 : delete-all  each> me delete ;
@@ -99,7 +98,6 @@ defer poststep   ' noop  is poststep
     world vacate  objects world push  objects gas
     ['] noop  dup is prestep  dup is poststep  is postrender
     ['] blue-screen is prerender  ;
-\ scene
 
 \\
 \ Test
