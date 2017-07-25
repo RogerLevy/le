@@ -43,7 +43,8 @@ objects one named main  \ proxy for the Forth data and return stacks
     drop \ ensure TOS is in TOS register
 ;
 
-: end  begin pause again ;
+: end  me delete  pause ;
+: halt    begin pause again ;
 : pauses  0 do pause loop ;
 : secs  fps * pauses ;  \ not meant for precision timing
 
@@ -53,6 +54,7 @@ objects one named main  \ proxy for the Forth data and return stacks
 \ you can pass a single parameter to each call, such as an object or an asset.
 20000 cellstack queue
 : later  ( n xt -- )  swap queue push queue push ;
+: later0  ( xt -- )  ['] execute later ; 
 : arbitrate  objects one 0 act>
     queue scount cells bounds do  i @ i cell+ @ execute 2 cells +loop
     queue vacate ;
