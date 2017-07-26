@@ -52,11 +52,13 @@ objects one named main  \ proxy for the Forth data and return stacks
 
 \ external-calls facility - say "['] word later" to schedule a word that calls an external library.
 \ you can pass a single parameter to each call, such as an object or an asset.
+\ NOTE: you don't have to consume the parameter, and as a bonus, you can leave as much as you want
+\ on the stack.
 20000 cellstack queue
 : later  ( n xt -- )  swap queue push queue push ;
 : later0  ( xt -- )  ['] execute later ; 
 : arbitrate  objects one 0 act>
-    queue scount cells bounds do  i @ i cell+ @ execute 2 cells +loop
+    queue scount cells bounds do  sp@ >r  i @ i cell+ @ execute  r> sp!  2 cells +loop
     queue vacate ;
 
 
