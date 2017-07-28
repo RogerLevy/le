@@ -85,11 +85,11 @@ defer prestep    ' noop  is prestep
 defer poststep   ' noop  is poststep
 : draw-objects  eachlist>  each>  draw ;
 \ : draw-info     info @ -exit  eachlist>  each>
-: le-render  render>  prerender  draw-objects  ( draw-info )  postrender ;
+: le-render  render>  { prerender  draw-objects  ( draw-info )  postrender } ;
 : step-world    eachlist>  each>  step ;
 : adv-world     eachlist>  each>  adv ;
 : sweep-world   eachlist>  sweep ;
-: le-step  step>  prestep  multi-world  step-world  sweep-world  poststep  sweep-world  adv-world ;
+: le-step  step>  { prestep  multi-world  step-world  sweep-world  poststep  sweep-world  adv-world } ;
 : le-go  le-render  le-step ;  le-go
 
 : pre>  r> code> is prestep ;
