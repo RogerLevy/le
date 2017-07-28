@@ -78,14 +78,16 @@ objlist objects  \ default object list.  if you don't put do anything to WORLD i
 : eachlist>  ( -- <code> )  ( ... objlist -- ... )
     r>  world scount cells bounds do  i @  swap  >r  r@ call  r>  cell +loop  drop ;
 
+: draw-world  eachlist>  each>  draw ;
+
 \ things get a bit crazy here ... the price of modularity?
 defer prerender  : blue-screen blue backdrop ;  ' blue-screen  is prerender
+defer render     ' draw-world is render
 defer postrender :noname  ;  is postrender
 defer prestep    ' noop  is prestep
 defer poststep   ' noop  is poststep
-: draw-objects  eachlist>  each>  draw ;
 \ : draw-info     info @ -exit  eachlist>  each>
-: le-render  render>  { prerender  draw-objects  ( draw-info )  postrender } ;
+: le-render  render>  { prerender  render  ( draw-info )  postrender } ;
 : step-world    eachlist>  each>  step ;
 : adv-world     eachlist>  each>  adv ;
 : sweep-world   eachlist>  sweep ;
@@ -97,7 +99,7 @@ defer poststep   ' noop  is poststep
 : scene  ( -- )
     world vacate  objects world push  objects gas
     ['] noop  dup is prestep  dup is poststep  is postrender
-    ['] blue-screen is prerender  ;
+    ['] blue-screen is prerender  ['] draw-world is render ;
 
 \\
 \ Test
