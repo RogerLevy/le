@@ -8,7 +8,7 @@
 \  - EXIT or ; from the "root" of a task (the definition containing PERFORM> )
 
 obj:
-    var sp  var rp  8 cells field ds  16 cells field rs
+    var sp  var rp  8 cells field ds  12 cells field rs
     ext
     
 objects one named main  \ proxy for the Forth data and return stacks
@@ -16,8 +16,8 @@ objects one named main  \ proxy for the Forth data and return stacks
 : perform> ( n -- <code> )
     ds 7 cells + !
     ds 6 cells + sp !
-    r> rs 7 cells + !
-    rs 7 cells + rp !
+    r> rs 11 cells + !
+    rs 11 cells + rp !
 ;
 
 : perform  ( xt n actor -- )
@@ -43,7 +43,7 @@ objects one named main  \ proxy for the Forth data and return stacks
     drop \ ensure TOS is in TOS register
 ;
 
-: end  me delete  pause ;
+: end  me delete  pause ;  \ may not be necessary to call directly in most cases if we inject it at the bottom of the return stack.  (TODO)
 : halt    begin pause again ;
 : pauses  0 do pause loop ;
 : secs  fps * pauses ;  \ not meant for precision timing
