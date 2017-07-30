@@ -8,26 +8,11 @@
 \  - EXIT or ; from the "root" of a task (the definition containing PERFORM> )
 
 obj:
-    var sp  var rp  8 cells field ds  12 cells field rs
+    var sp  var rp  12 cells field ds  12 cells field rs
     ext
     
 objects one named main  \ proxy for the Forth data and return stacks
 
-: perform> ( n -- <code> )
-    ds 7 cells + !
-    ds 6 cells + sp !
-    r> rs 11 cells + !
-    rs 11 cells + rp !
-;
-
-: perform  ( xt n actor -- )
-    { me!
-    ds 7 cells + !
-    ds 6 cells + sp !
-    >code rs 7 cells + !
-    rs 7 cells + rp !
-    }
-;
 
 \ important: this word must not CALL anything or use the return stack until the bottom part.
 : pause
@@ -43,22 +28,19 @@ objects one named main  \ proxy for the Forth data and return stacks
     drop \ ensure TOS is in TOS register
 ;
 
-: end  me delete  pause ;  \ may not be necessary to call directly in most cases if we inject it at the bottom of the return stack.  (TODO)
+: end  me delete  pause ;
 : halt    begin pause again ;
 : pauses  0 do pause loop ;
 : secs  fps * pauses ;  \ not meant for precision timing
-
-
 
 \ external-calls facility - say "['] word later" to schedule a word that calls an external library.
 \ you can pass a single parameter to each call, such as an object or an asset.
 \ NOTE: you don't have to consume the parameter, and as a bonus, you can leave as much as you want
 \ on the stack.
 20000 cellstack queue
-: later  ( n xt -- )  swap queue push queue push ;
-: later0  ( xt -- )  ['] execute later ; 
-: arbitrate  objects one 0 act>
-    queue scount cells bounds do  sp@ >r  i @ i cell+ @ execute  r> sp!  2 cells +loop
+: later  ( xt n -- )  queue push queue push ;
+: arbitrate
+    queue scount swap a!>  for  sp@ >r  @+ @+ execute  r> sp!  loop
     queue vacate ;
 
 
@@ -83,5 +65,27 @@ objects one named main  \ proxy for the Forth data and return stacks
     r> me!
     { arbitrate }
 ;
+
+
+: perform> ( n -- <code> )
+    ds 10 cells + !
+    ds 9 cells + sp !
+    r> rs 10 cells + !
+    ['] halt rs 11 cells + !
+    rs 10 cells + rp !
+;
+
+: perform  ( xt n actor -- )
+    { me!
+    ds 10 cells + !
+    ds 9 cells + sp !
+    >code rs 10 cells + !
+    ['] halt rs 11 cells + !
+    rs 10 cells + rp !
+    }
+;
+
+: direct  ( obj -- <word> )  '  0  rot  perform ;
+: direct:  ( obj -- ... code ... ; )  :noname  [char] ; parse evaluate  0  rot  perform ;
 
 :noname  eachlist> multi ;  is multi-world
