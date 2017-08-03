@@ -51,6 +51,7 @@ private:
     attrchecker name?   name
     numattr id          id
     strattr xntype      type
+    attrchecker xntype? type
     numattr x           x
     numattr y           y
     numattr xngid       gid
@@ -71,24 +72,29 @@ private:
     : eval  ['] evaluate catch ?dup if cr bright ." TMX script error:" space  .catch normal  2drop then ;
     : loadxml   file@  2dup xml  >r  drop free throw  r> ;
     : clearly   bmps scount cells bounds ?do  i @  i off  al_destroy_bitmap  cell +loop ;
-    : addbmp  ( path c gid -- ) >r  s" data/maps/" 2swap strjoin loadbmp  r> bmps [] ! ;
+    : addpath  " data/maps/" 2swap strjoin ;
     : /visible  visible? -exit  visible 0= hide ! ;
     : instance  ( xn=xmlnode objlist gid -- )  dup  >r  gid>spawner execute  r>  gid !  /visible  /mapload ;
     : yfix  height negate peny +! ;
     : >map   " map" 0 ?el[] not abort" File is not a recognized TMX file!" ;
     : ?layer   dup open>  name uncount find if  execute  else  drop  objects  then  to layer  ;
-    : addpath  " data/maps/" 2swap strjoin ;
     : >tileset  " tileset" 0 el[] ;
+    : >image  0 image[] ;
+    : spawner  type? if  xntype find  not if  drop  ['] one  then   else  ['] one  then  ;
+
 public:
 
 variable gidbase
+: get-tile-image  ( gid -- bitmap )  gidbase @ +  >image open>  source addpath loadbmp  ;
 : read-tiles  ( xmlnode -- )
     open>
         name uncount find not if  drop  ['] one  then  ( xt )
         tilecount 0 do  dup spawners push  loop  drop
-        xn " tile" 0 el[]? if  xn " tile" eachel>  open>  id
-        else  0  then  gidbase @ +
-        0 image[] open>  source  rot addbmp ;
+        xn " tile" 0 el[]?
+            if  xn  " tile"  EACHEL>  OPEN>  id  get-tile-image
+            else  0  add-tile-image
+            then
+;
 : read-tileset  ( xmlnode -- )
     open> 
         firstgid gidbase !
