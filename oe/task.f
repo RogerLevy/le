@@ -7,7 +7,9 @@
 \  - Console output (when the Bubble IDE is not loaded)
 \  - EXIT or ; from the "root" of a task (the definition containing PERFORM> )
 
-obj:
+obj: idiom task:
+    import bu/mo/a
+
     var sp  var rp  12 cells field ds  12 cells field rs
     ext
     
