@@ -97,7 +97,7 @@ defer poststep   ' noop  is poststep
 : pre>  r> code> is prestep ;
 : post>  r> code> is poststep ;
 : scene  ( -- )
-    world vacate  objects world push  objects gas
+    world 0 truncate  objects world push  objects gas
     ['] noop  dup is prestep  dup is poststep  is postrender
     ['] blue-screen is prerender  ['] draw-world is render ;
 

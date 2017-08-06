@@ -43,7 +43,7 @@ objects one named main  \ proxy for the Forth data and return stacks
 : later  ( xt n -- )  queue push queue push ;
 : arbitrate
     queue scount swap a!>  for  sp@ >r  @+ @+ execute  r> sp!  loop
-    queue vacate ;
+    queue 0 truncate ;
 
 
 \ execute the multitasker.

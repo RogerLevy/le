@@ -54,7 +54,7 @@ public:
 private:
     : clear
         bmps scount cells bounds 0 do  i @  i off  al_destroy_bitmap  cell +loop
-        bmps vacate
+        bmps 0 truncate
         classes scount ierase ;
 
     variable gid
