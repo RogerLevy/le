@@ -29,10 +29,12 @@ le:
 : uncount  s[ ]s drop #1 - ;
 : lookup   -trailing uncount find 0= if  " Asset symbol not found.  Exiting..." alert bye  then ;
 
-: /image  ( path count -- )
-    2dup zstring al_load_bitmap -rot  path>imagename lookup >body bmp ! ;
-: /sfx  ( path count -- )
-    2dup zstring al_load_sample -rot  path>sfxname lookup >body ! ;
+private:
+    : /image  ( path count -- )
+        2dup zstring al_load_bitmap -rot  path>imagename lookup >body bmp ! ;
+    : /sfx  ( path count -- )
+        2dup zstring al_load_sample -rot  path>sfxname lookup >body ! ;
+public:
 
 0 enum TYPE_OTHER enum TYPE_IMAGE enum TYPE_SFX drop
 : type:   ( type -- <ext> ) constant ;

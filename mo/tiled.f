@@ -36,7 +36,7 @@ bu: idiom tiled:
 defer loadbox  ( pen=xy w h container -- )  ' 3drop is loadbox
 var onmapload  ( xn=xmlnode me=gameobject pen=xy -- )  \ call-address
 var gid
-ext
+augment
 
 0 value tmx  \ just for debugging purposes.  root node of the map file's DOM.
 
