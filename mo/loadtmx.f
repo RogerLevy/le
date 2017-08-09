@@ -11,11 +11,9 @@ idiom loadtmx:
 0 value ts
 create tempimg  /image /allot
 16384 cellstack objtypes
-2048 2048 array2d tilemap
 
 var gid
 augment
-
 
 \ defers.  they assume ONE has already been called.
 \ these can assume the GID has already been set; same for HIDE.
@@ -37,7 +35,6 @@ defer box  ' 2drop is box  ( w h -- )
         ts @firstgid  r@ @id +  objtypes [] !
     r> drop
 ;
-
 
 : load-tiles
     bitmaps scount for  @+ -bmp  loop drop  bitmaps 0 truncate
@@ -80,6 +77,10 @@ defer box  ' 2drop is box  ( w h -- )
             then
         then
     r> drop ;
+
+: tiled>lantern   dup 2 << over $80000000 and 1 >> or swap $40000000 and 1 << or ;
+: convert-map     ( array2d -- ) scan2d> cells bounds do i @ tiled>lantern i ! cell +loop ;
+
 
 \ : load-all-objects ;
 
