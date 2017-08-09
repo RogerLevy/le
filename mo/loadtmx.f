@@ -1,9 +1,9 @@
 \ Load and display tilemap and objects (no interaction, just scroll around with arrow keys)
 le:
     import bu/mo/tmx
-idiom loadtmx:
     import bu/mo/tilegame
     import bu/mo/array2d
+idiom loadtmx:
     import bu/mo/xml
 
 
@@ -28,8 +28,9 @@ defer box  ' 2drop is box  ( w h -- )
 \ if it doesn't exist or if the "type" is not defined we use ' *OBJ
 \ no need to truncate the objtypes stack since we'll be using GID's as indices.
 \ if a tile element doesn't exist at all we of course use ' *OBJ then too.
+: (defaults)  ts @tilecount for  ['] obj  ts @firstgid i +  objtypes [] !  loop ; \ default all to OBJ
 : make-initializers  ( -- )
-    ts @tilecount for  ['] obj  ts @firstgid i +  objtypes [] !  loop  \ default all to OBJ
+    (defaults)
     ts tiles>  ( tile-node )  >r                                        \ process any tile nodes
         r@ ?type if  uncount find not if  drop  ['] obj  then
                else  ['] obj  then
@@ -43,6 +44,7 @@ defer box  ' 2drop is box  ( w h -- )
     clear-tiles
     #tilesets for
         i tileset[] to ts
+        cr ts >el x.
         ts multi-image? if    \ might not work with "weird" tilesets ... if anyone even does that kind of thing
             \ add tiles that use their own image files
             ts @tilecount for
@@ -61,9 +63,9 @@ defer box  ' 2drop is box  ( w h -- )
 
 : load-objects  ( objgroup-node -- )
     \ get the destination objlist first
-    @name uncount find if  >body  else  objects  then  in
+    dup @name uncount find if  >body  else  drop  objects  then  in
     objects> >r
-        r@ x.
+        cr r@ x.
         r@ @xy at
         r@ ?name if
             evaluate
