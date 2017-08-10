@@ -103,7 +103,11 @@ defer poststep   ' noop  is poststep
     ['] blue-screen is prerender  ['] draw-world is render
     objects in ;  scene
 
-: one    ( -- )  me  heap portion me!  init  me swap parent @ ?dup 0= if objects then pushnode ;
+: draw-noop  draw> noop ;
+: act-noop   act> noop ;
+: one    ( -- )
+    me  heap portion me!  init  me swap parent @ ?dup 0= if objects then pushnode
+    draw-noop act-noop ;
 
 
 \\
