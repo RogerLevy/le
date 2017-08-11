@@ -8,10 +8,8 @@ le: role tilemap:
 
 2048 2048 array2d tilebuf
 
-
 : tilemap
     displaywh mw 2v!
     draw>
-        0 0 at
         at@ mw 2v@ scaled clip>
         sx 2v@ 20 20 scroll tilebuf addr  tilebuf @pitch  draw-tilemap-bg ;
