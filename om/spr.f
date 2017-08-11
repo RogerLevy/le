@@ -26,6 +26,6 @@ var r var g var b var a
     : *cat  one  /sprite  cat.image center  draw>  cat.image bmp @ sprite  0.01 ang +! ;
     : world   grey backdrop  objects each> draw ;
     : physics  ;
-    : test  go> render> world step> physics ;
+    : test  go> show> world step> physics ;
     scene  objects gas  displaywh 0.5 0.5 2* at  *cat  me value cat  2 2 sx 2!
 [then]

@@ -88,7 +88,7 @@ defer postrender :noname  ;  is postrender
 defer prestep    ' noop  is prestep
 defer poststep   ' noop  is poststep
 \ : draw-info     info @ -exit  eachlist>  each>
-: le-render  render>  { prerender  render  ( draw-info )  postrender } ;
+: le-render  show>  { prerender  render  ( draw-info )  postrender } ;
 : step-world    eachlist>  each>  step ;
 : adv-world     eachlist>  each>  adv ;
 : sweep-world   eachlist>  sweep ;
