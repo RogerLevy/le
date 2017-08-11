@@ -21,7 +21,7 @@ defer onmapload  ' execute is onmapload  ( initializer -- )  \ executes the init
 defer obj  ' noop  is obj   ( -- )  \ default initializer when type isn't specified
 defer box  ' 2drop is box  ( w h -- )
 
-\ make array of spawner XT's.  if the "type" is defined in the tile, it's
+\ make array of initializer XT's.  if the "type" is defined in the tile, it's
 \ looked up in the dictionary and if it exists we get the XT and put it in the array.
 \ if it doesn't exist or if the "type" is not defined we use ' *OBJ
 \ no need to truncate the initializers stack since we'll be using GID's as indices.
@@ -60,8 +60,9 @@ defer box  ' 2drop is box  ( w h -- )
     loop ;
 
 : load-objects  ( objgroup-node -- )
+    dup cr x.
     \ get the destination objlist first
-    dup @name ['] evaluate catch if
+    dup @nameattr ['] evaluate catch if
         2drop objects  bright ." ERROR evaluating object group name (objlist), continuing..." normal
     then  in
     objects> >r
