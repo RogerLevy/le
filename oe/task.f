@@ -4,16 +4,16 @@
 \  pause END FRAMES SECS
 \ The following words should never be used within a task:
 \  - External calls
-\  - Console output (when the Bubble IDE is not loaded)
-\  - EXIT or ; from the "root" of a task (the definition containing PERFORM> )
+\  - Console output 
+\ See below for a workaround mechanism.
 
 obj: idiom task:
     import bu/mo/a
 
     var sp  var rp  12 cells field ds  12 cells field rs
-    ext
+    augment
     
-objects one named main  \ proxy for the Forth data and return stacks
+objects in  one named main  \ proxy for the Forth data and return stacks
 
 
 \ important: this word must not CALL anything or use the return stack until the bottom part.

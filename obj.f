@@ -50,7 +50,6 @@ used @ value parms
 : /obj  heap dims drop ;
 : init  me /obj erase  en on  hide on  at@ x 2! ;
 : named  ( -- <name> )  me value  nam on ;
-: one    ( objlist -- )  heap portion me!  init  me swap pushnode ;
 : draw>  r> disp !  hide off  ;
 : act>   r> beha ! ;
 : from   ( x y -- )  x 2@ 2+ at ;
@@ -61,7 +60,7 @@ used @ value parms
 : delete  ( obj -- )  { me!  marked on } ;
 \ -----
 
-: ext  used @ to parms ;
+: augment  used @ to parms ;
 
 \ Private idioms for game objects; currently no actual connection to the objects themselves...
 : role  parms used !  idiom  private: ;
@@ -73,7 +72,9 @@ used @ value parms
 : gas  ( objlist -- ) dup delete-all sweep ;  \ this word is kind of meant to be redefined (?)
 
 256 cellstack world
-: objlist  ( -- <name> )  create  here  container instance,  world push ;
+: *dummy  dup , ;  \ first cell of node is the parent so this is all we need
+: in      ( objlist -- )  container sizeof + me! ;
+: objlist  ( -- <name> )  create  here  container instance,  *dummy  world push ;
 objlist objects  \ default object list.  if you don't put do anything to WORLD it's the only list processed.
 : eachlist>  ( -- <code> )  ( ... objlist -- ... )
     r>  world scount cells bounds do  i @  swap  >r  r@ call  r>  cell +loop  drop ;
@@ -93,19 +94,27 @@ defer poststep   ' noop  is poststep
 : sweep-world   eachlist>  sweep ;
 : le-step  step>  { prestep  multi-world  step-world  sweep-world  poststep  sweep-world  adv-world } ;
 : le-go  le-render  le-step ;  le-go
-
+: devoid  eachlist> gas sweep-world ;
 : pre>  r> code> is prestep ;
 : post>  r> code> is poststep ;
 : scene  ( -- )
-    world 0 truncate  objects world push  objects gas
+    world 0 truncate  objects world push
     ['] noop  dup is prestep  dup is poststep  is postrender
-    ['] blue-screen is prerender  ['] draw-world is render ;
+    ['] blue-screen is prerender  ['] draw-world is render
+    objects in ;  scene
+
+: draw-noop  draw> noop ;
+: act-noop   act> noop ;
+: one    ( -- )
+    me  heap portion me!  init  me swap parent @ ?dup 0= if objects then pushnode
+    draw-noop act-noop ;
+
 
 \\
 \ Test
 [defined] dev [if]
     private:
-    : *thingy  objects one draw> 50 50 red 50 circlef ;
+    : *thingy  one draw> 50 50 red 50 circlef ;
     scene  displaywh 2 2 2/ at  *thingy  me value thingy
 [then]
 

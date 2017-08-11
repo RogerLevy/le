@@ -2,7 +2,7 @@
 
 obj:
     var zdepth
-    ext
+    augment
 
 : compiled  ( addr -- addr cells )  here over - cell/ s>p ;
 
