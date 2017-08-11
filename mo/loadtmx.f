@@ -80,8 +80,6 @@ defer box  ' 2drop is box  ( w h -- )
         then
     r> drop ;
 
-: tiled>lantern   dup 2 << over $80000000 and 1 >> or swap $40000000 and 1 << or ;
-: convert-map     ( array2d -- ) scan2d> cells bounds do i @ tiled>lantern i ! cell +loop ;
 
 
 \ : load-all-objects ;
