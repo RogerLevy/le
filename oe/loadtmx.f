@@ -29,12 +29,21 @@ defer box  ' 2drop is box  ( w h -- )
 : make-initializers  ( -- )
     (defaults)
     ts tiles>  ( tile-node )  >r                                        \ process any tile nodes
-        r@ ?type if  ['] evaluate  catch if  bright ." ERROR evaluating tile type, continuing..." normal
-            2drop ['] obj  then
+        r@ ?type if  uncount find not if  drop bright ." ERROR evaluating tile type, continuing..." normal ['] obj  then
                else  ['] obj  then
         ts @firstgid  r@ @id +  initializers [] !
     r> drop
 ;
+
+: get-tile-image
+    >r  tempimg ts r@ tile-image load-image
+    tempimg bmp @ ts r> tile-gid tiles [] !
+    tempimg bmp @ bitmaps push ;
+
+: get-tileset-image
+    tempimg ts single-image load-image
+    tempimg ts tile-dims ts @firstgid change-tiles
+    tempimg bmp @ bitmaps push ;
 
 : load-tiles
     bitmaps scount for  @+ -bmp  loop drop  bitmaps 0 truncate
@@ -44,16 +53,10 @@ defer box  ' 2drop is box  ( w h -- )
         cr ts >el x.
         ts multi-image? if    \ might not work with "weird" tilesets ... if anyone even does that kind of thing
             \ add tiles that use their own image files
-            ts @tilecount for
-                tempimg ts i tile-image load-image
-                tempimg bmp @ ts i tile-gid tiles [] !
-                tempimg bmp @ bitmaps push
-            loop
+            ts @tilecount for  i get-tile-image  loop
         else
             \ add tiles from single image
-            tempimg ts single-image load-image
-            tempimg ts tile-dims ts @firstgid change-tiles
-            tempimg bmp @ bitmaps push
+            get-tileset-image
         then
         make-initializers
     loop ;
