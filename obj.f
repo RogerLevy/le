@@ -87,6 +87,7 @@ defer render     ' draw-world is render
 defer postrender :noname  ;  is postrender
 defer prestep    ' noop  is prestep
 defer poststep   ' noop  is poststep
+
 \ : draw-info     info @ -exit  eachlist>  each>
 : le-render  show>  { prerender  render  ( draw-info )  postrender } ;
 : step-world    eachlist>  each>  step ;
@@ -94,9 +95,8 @@ defer poststep   ' noop  is poststep
 : sweep-world   eachlist>  sweep ;
 : le-step  step>  { prestep  multi-world  step-world  sweep-world  poststep  sweep-world  adv-world } ;
 : le-go  le-render  le-step ;  le-go
+
 : devoid  eachlist> gas sweep-world ;
-: pre>  r> code> is prestep ;
-: post>  r> code> is poststep ;
 : scene  ( -- )
     world 0 truncate  objects world push
     ['] noop  dup is prestep  dup is poststep  is postrender
