@@ -1,9 +1,8 @@
 \ Load and display tilemap and objects (no interaction, just scroll around with arrow keys)
-le:
-    import bu/mo/tmx
     import bu/mo/tilegame
     import bu/mo/array2d
-idiom loadtmx:
+le: idiom loadtmx:
+    import bu/mo/tmx
     import bu/mo/xml
 
 
@@ -81,7 +80,4 @@ defer box  ' 2drop is box  ( w h -- )
         then
     r> drop ;
 
-
-
 \ : load-all-objects ;
-
