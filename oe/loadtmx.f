@@ -1,11 +1,15 @@
-\ Load and display tilemap and objects (no interaction, just scroll around with arrow keys)
+\ Load tilemap and objects
+\  2 arrays store unique tile bitmaps, and object initializers.
+\  A hook lets you do extra stuff per tile such as gather collision data.
+
+
     import bu/mo/tilegame
     import bu/mo/array2d
 le: idiom loadtmx:
     import bu/mo/tmx
     import bu/mo/xml
 
-
+defer onloadtile  ( tilenode -- )  ' drop is onloadtile
 16384 cellstack bitmaps
 0 value ts
 create tempimg  /image /allot
@@ -32,6 +36,7 @@ defer box  ' 2drop is box  ( w h -- )
         r@ ?type if  uncount find not if  drop bright ." ERROR evaluating tile type, continuing..." normal ['] obj  then
                else  ['] obj  then
         ts @firstgid  r@ @id +  initializers [] !
+        r@ onloadtile
     r> drop
 ;
 

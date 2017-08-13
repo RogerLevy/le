@@ -13,3 +13,6 @@ le: role tilemap:
     draw>
         at@ mw 2v@ scaled clip>
         sx 2v@ 20 20 scroll tilebuf addr  tilebuf @pitch  draw-tilemap-bg ;
+
+: @tile  ( col row -- tile )  tilebuf addr @ ;
+: >gid  ( tile -- gid )  $0000fffc and 8 << ;
