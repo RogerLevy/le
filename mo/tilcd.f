@@ -47,8 +47,8 @@ private:
     : pt  gap dup 2/  2pfloor  @tile >gid  dup t ! p@ ;
 
     \ increment coordinates
-    : ve+ swap gap + w @ #1 - px + min swap ;
-    : he+ gap + h @ #1 - ( py ) ny @ + min ;
+    : ve+  swap gap +  w @ #1 - px +  min  swap ;
+    : he+  gap +  h @ #1 - ny @ +  min ;
 
     : +vy ny +! ny @ ( $ffff0000 and dup ny ! ) py - vy ! ;
     : +vx nx +! nx @ ( $ffff0000 and dup nx ! ) px - vx ! ;
@@ -58,8 +58,8 @@ private:
     : pd ( xy ) nip gap mod negate gap + +vy  ceiling? on  t @ map-collide  ;
 
     \ check up/down
-    : cu w @ gap / 2 + for 2dup pt cel? if pd r> drop exit then ve+ loop 2drop ;
-    : cd w @ gap / 2 + for 2dup pt flr? if pu r> drop exit then ve+ loop 2drop ;
+    : cu w @ gap / 2 + for 2dup pt cel? if pd unloop exit then ve+ loop 2drop ;
+    : cd w @ gap / 2 + for 2dup pt flr? if pu unloop exit then ve+ loop 2drop ;
 
 
     \ push left/right
@@ -67,13 +67,13 @@ private:
     : pr ( xy ) drop gap mod negate gap + +vx lwall? on t @ map-collide ;
 
     \ check left/right
-    : cl h @ gap / 2 + for 2dup pt wrt? if pr r> drop exit then he+ loop 2drop ;
-    : crt h @ gap / 2 + for 2dup pt wlt? if pl r> drop exit then he+ loop 2drop ;
+    : cl h @ gap /  2 + for 2dup pt wrt? if pr unloop exit then he+ loop 2drop ;
+    : crt h @ gap / 2 + for 2dup pt wlt? if pl unloop exit then he+ loop 2drop ;
 
     \ check if object's path crosses tile boundaries in the 4 directions...
-    : dcros? py h @ #1 -  + gap /  ny @ h @ #1 - + gap / < ;
+    : dcros? py h @ + #1 - gap /  ny @ h @ + #1 - gap / < ;
     : ucros? py gap /  ny @ gap /  > ;
-    : rcros? px w @ #1 -  + gap /  nx @ w @ #1 - + gap / < ;
+    : rcros? px w @ + #1 - gap /  nx @ w @ + #1 - gap / < ;
     : lcros? px gap /  nx @ gap /  > ;
 
     : ud vy @ -exit vy @ 0 < if ( ucros? -exit ) px ny @ cu exit then ( dcros? -exit ) px ny @ h @ + cd ;
