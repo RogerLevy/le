@@ -12,7 +12,7 @@ le: idiom tilcd:
     import le/mo/tilemap
 
 create tileprops  #16384 /allot  \ you could screw around with this to do one-way platforms
-tileprops #1 + #16383 $ff cfill
+tileprops #1 + #16383 $ff fill
 
 private:
     : vector   create 0 , here 0 , constant ;
@@ -25,14 +25,14 @@ variable floor?
 variable ceiling?
 
 private:
-    defer map-collide   ' drop is map-collide  ( gid -- )
+    defer map-collide   ' drop is map-collide  ( info -- )
 
-    : cel? 1 and ; \ ' ceiling '
-    : flr? 2 and ; \ ' floor '
-    : wlt? 4 and ; \ ' wall left '
-    : wrt? 8 and ; \ ' wall right '
+    : cel? #1 and ; \ ' ceiling '
+    : flr? #2 and ; \ ' floor '
+    : wlt? #4 and ; \ ' wall left '
+    : wrt? #8 and ; \ ' wall right '
 
-    : p@  ( gid )  1i tileprops + c@ ;
+    : p@  ( gid -- val )  1i tileprops + c@ ;
 
     vector w h
     vector nx ny
@@ -44,7 +44,7 @@ private:
     : py y @ ;
 
     \ point
-    : pt  @tile >gid  dup t ! p@ ;
+    : pt  gap dup 2/  2pfloor  @tile >gid  dup t ! p@ ;
 
     \ increment coordinates
     : ve+ swap gap + w @ #1 - px + min swap ;
