@@ -1,9 +1,5 @@
 \ Sprite game object mixin
 
-\ no idioms are established or declared; this is meant to be re-compiled as needed,
-\ presumably into roles.
-
-obj:
 import bu/mo/draw
 var sx var sy var ang var orgx var orgy var flip
 var r var g var b var a
