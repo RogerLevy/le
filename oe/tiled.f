@@ -6,7 +6,7 @@ le:
     import le/oe/loadtmx
     import le/mo/tilemap
 
-: read  ( layernode destcol destrow -- )
+: get  ( layernode destcol destrow -- )
     3dup tilebuf addr-pitch extract
     rot @wh tilebuf convert-tilemap ;
 
