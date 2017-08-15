@@ -25,9 +25,10 @@ bu: idiom obj:
 
 private:
     32 cellstack stack
-    variable used  node sizeof @ used !  \ field counter
     : ?call  ?dup -exit call ;
 public:
+
+variable used  node sizeof @ used !  \ field counter
 
 defer multi-world  ' noop is multi-world  ( -- )  \ for multitasking extension
 
@@ -89,16 +90,18 @@ defer prestep    ' noop  is prestep
 defer poststep   ' noop  is poststep
 
 \ : draw-info     info @ -exit  eachlist>  each>
-: le-render  show>  { prerender  render  ( draw-info )  postrender } ;
+: (render)   prerender  render  ( draw-info )  postrender ;
+: le-render  show>  { ['] (render) catch } throw ;
 : step-world    eachlist>  each>  step ;
 : adv-world     eachlist>  each>  adv ;
 : sweep-world   eachlist>  sweep ;
-: le-step  step>  { prestep  multi-world  step-world  sweep-world  poststep  sweep-world  adv-world } ;
+: (step)   prestep  multi-world  step-world  sweep-world  poststep  sweep-world  adv-world ;
+: le-step  step>  { ['] (step) catch } throw ;
 : le-go  le-render  le-step ;  le-go
 
-: devoid  eachlist> gas sweep-world ;
+: (devoid)  eachlist> gas ;
+: devoid  (devoid) sweep-world  world 0 truncate  objects world push  ;
 : scene  ( -- )
-    world 0 truncate  objects world push
     ['] noop  dup is prestep  dup is poststep  is postrender
     ['] blue-screen is prerender  ['] draw-world is render
     objects in ;  scene

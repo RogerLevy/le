@@ -40,7 +40,7 @@ objects in  one named main  \ proxy for the Forth data and return stacks
 \ NOTE: you don't have to consume the parameter, and as a bonus, you can leave as much as you want
 \ on the stack.
 20000 cellstack queue
-: later  ( xt n -- )  queue push queue push ;
+: later  ( val xt -- )  swap queue push queue push ;
 : arbitrate
     queue scount swap a!>  for  sp@ >r  @+ @+ execute  r> sp!  loop
     queue 0 truncate ;
@@ -73,7 +73,7 @@ objects in  one named main  \ proxy for the Forth data and return stacks
     ds 10 cells + !
     ds 9 cells + sp !
     r> rs 10 cells + !
-    ['] halt rs 11 cells + !
+    ['] halt >code rs 11 cells + !
     rs 10 cells + rp !
 ;
 
@@ -82,7 +82,7 @@ objects in  one named main  \ proxy for the Forth data and return stacks
     ds 10 cells + !
     ds 9 cells + sp !
     >code rs 10 cells + !
-    ['] halt rs 11 cells + !
+    ['] halt >code rs 11 cells + !
     rs 10 cells + rp !
     }
 ;

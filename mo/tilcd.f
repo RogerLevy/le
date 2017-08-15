@@ -19,10 +19,10 @@ private:
 public:
 
 \ what sides the object collided
-variable lwall?
-variable rwall?
-variable floor?
-variable ceiling?
+0 value lwall?
+0 value rwall?
+0 value floor?
+0 value ceiling?
 
 private:
     defer map-collide   ' drop is map-collide  ( info -- )
@@ -54,8 +54,8 @@ private:
     : +vx nx +! nx @ ( $ffff0000 and dup nx ! ) px - vx ! ;
 
     \ push up/down
-    : pu ( xy ) nip gap mod negate +vy  floor? on  t @ map-collide  ;
-    : pd ( xy ) nip gap mod negate gap + +vy  ceiling? on  t @ map-collide  ;
+    : pu ( xy ) nip gap mod negate +vy  true to floor?  t @ map-collide  ;
+    : pd ( xy ) nip gap mod negate gap + +vy  true to ceiling?  t @ map-collide  ;
 
     \ check up/down
     : cu w @ gap / 2 + for 2dup pt cel? if pd unloop exit then ve+ loop 2drop ;
@@ -63,8 +63,8 @@ private:
 
 
     \ push left/right
-    : pl ( xy ) drop gap mod negate ( -1.0 + ) +vx rwall? on t @ map-collide ;
-    : pr ( xy ) drop gap mod negate gap + +vx lwall? on t @ map-collide ;
+    : pl ( xy ) drop gap mod negate ( -1.0 + ) +vx  true to rwall?  t @ map-collide ;
+    : pr ( xy ) drop gap mod negate gap + +vx  true to lwall?  t @ map-collide ;
 
     \ check left/right
     : cl h @ gap /  2 + for 2dup pt wrt? if pr unloop exit then he+ loop 2drop ;
@@ -79,7 +79,7 @@ private:
     : ud vy @ -exit vy @ 0 < if ( ucros? -exit ) px ny @ cu exit then ( dcros? -exit ) px ny @ h @ + cd ;
     : lr vx @ -exit vx @ 0 < if ( lcros? -exit ) nx 2v@ cl exit then ( rcros? -exit ) nx @ w @ + ny @ crt ;
 
-    : init   to gap  w 2v!  x 2v@  vx 2v@  2+  nx 2v!  lwall? off rwall? off floor? off ceiling? off ;
+    : init   to gap  w 2v!  x 2v@  vx 2v@  2+  nx 2v!  0 to lwall? 0 to rwall? 0 to floor? 0 to ceiling? ;
     0 value (code)
 
 public:
