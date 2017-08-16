@@ -73,14 +73,15 @@ used @ value parms
 : gas  ( objlist -- ) dup delete-all sweep ;  \ this word is kind of meant to be redefined (?)
 
 256 cellstack world
-: *dummy  dup , ;  \ first cell of node is the parent so this is all we need
-: in      ( objlist -- )  container sizeof + me! ;
+: *dummy  0 , 0 , dup , ;  \ third cell of node is the parent so this is all we need
+: in      ( objlist -- )  container sizeof @ + me! ;
 : objlist  ( -- <name> )  create  here  container instance,  *dummy  world push ;
 objlist objects  \ default object list.  if you don't put do anything to WORLD it's the only list processed.
 : eachlist>  ( -- <code> )  ( ... objlist -- ... )
     r>  world scount cells bounds do  i @  swap  >r  r@ call  r>  cell +loop  drop ;
 
-: draw-world  eachlist>  each>  draw ;
+: draw-objlist  each>  draw ;
+: draw-world  eachlist>  draw-objlist ;
 
 \ things get a bit crazy here ... the price of modularity?
 defer prerender  : blue-screen blue backdrop ;  ' blue-screen  is prerender
@@ -109,7 +110,7 @@ defer poststep   ' noop  is poststep
 : draw-noop  draw> noop ;
 : act-noop   act> noop ;
 : one    ( -- )
-    me  heap portion me!  init  me swap parent @ ?dup 0= if objects then pushnode
+    me   heap portion me!  init  me swap parent @  ?dup 0= if objects then pushnode
     draw-noop act-noop ;
 
 
