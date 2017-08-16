@@ -69,13 +69,14 @@ objects in  one named main  \ proxy for the Forth data and return stacks
 ;
 
 
+: self?  sp@ ds >=  sp@ rs <= and ;
+
+decimal
 : perform> ( n -- <code> )
-    ds 10 cells + !
-    ds 9 cells + sp !
-    r> rs 10 cells + !
-    ['] halt >code rs 11 cells + !
-    rs 10 cells + rp !
-;
+    self? if    ds 10 cells + sp!  r>  rs 10 cells + rp!  >r  exit
+          else  ds 10 cells + !  ds 9 cells + sp !  r> rs 10 cells + !  rs 10 cells + rp !  
+                ['] halt >code rs 11 cells + !
+          then ;
 
 : perform  ( xt n actor -- )
     { me!
@@ -86,6 +87,7 @@ objects in  one named main  \ proxy for the Forth data and return stacks
     rs 10 cells + rp !
     }
 ;
+fixed
 
 : direct  ( obj -- <word> )  '  0  rot  perform ;
 : direct:  ( obj -- ... code ... ; )  :noname  [char] ; parse evaluate  0  rot  perform ;
