@@ -16,3 +16,6 @@ le: role tilemap:
 
 : @tile  ( col row -- tile )  tilebuf addr @ ;
 : >gid  ( tile -- gid )  $0000fffc and 10 << ;
+
+\ Very ghetto
+: scroll-tilemap   ( x y tilemap -- )  's sx 2v! ;
