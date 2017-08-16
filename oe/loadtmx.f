@@ -33,7 +33,7 @@ defer box  ' 2drop is box  ( w h -- )
 : make-initializers  ( -- )
     (defaults)
     ts tiles>  ( tile-node )  >r                                        \ process any tile nodes
-        r@ ?type if  uncount find not if  drop bright ." ERROR evaluating tile type, continuing..." normal ['] obj  then
+        r@ ?type if  uncount find not if  drop bright cr ." ERROR evaluating tile type, continuing..." normal ['] obj  then
                else  ['] obj  then
         ts @firstgid  r@ @id +  initializers [] !
         r@ onloadtile

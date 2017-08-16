@@ -112,13 +112,3 @@ defer poststep   ' noop  is poststep
 : one    ( -- )
     me   heap portion me!  init  me swap parent @  ?dup 0= if objects then pushnode
     draw-noop act-noop ;
-
-
-\\
-\ Test
-[defined] dev [if]
-    private:
-    : *thingy  one draw> 50 50 red 50 circlef ;
-    scene  displaywh 2 2 2/ at  *thingy  me value thingy
-[then]
-
