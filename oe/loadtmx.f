@@ -89,3 +89,8 @@ defer box  ' 2drop is box  ( w h -- )
     r> drop ;
 
 \ : load-all-objects ;
+
+
+: convert-tile   dup 2 << over $80000000 and 1 >> or swap $40000000 and 1 << or ;
+: convert-tilemap  ( col row #cols #rows array2d -- )
+    some2d> cells bounds do i @ convert-tile i ! cell +loop ;
